@@ -1,0 +1,8 @@
+de:
+  showMore: Mehr
+  showLess: Weniger
+  available: Verfügbar
+en:
+  showMore: Show more
+  showLess: Show less
+  available: Available
