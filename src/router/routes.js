@@ -19,6 +19,7 @@ import TabReturn from 'presentation/User/TabReturn/TabReturn.vue';
 import Cart from 'presentation/CartDetail/CartDetail.vue';
 import Home from 'presentation/Home/Home.vue';
 import StoreLocator from 'presentation/Stores/StoreLocator.vue';
+import OrderReceived from 'presentation/OrderReceived/OrderReceived.vue'
 
 const requiresAuth = true;
 export default [
@@ -165,6 +166,17 @@ export default [
           footer: Footer,
         },
       },
+
+      {
+        path: 'order-received',
+        name: 'final-succes',
+        components: {
+          default: OrderReceived,
+          header: Header,
+          footer: Footer,
+        },
+      },
+
     ],
   },
 ];

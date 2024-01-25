@@ -3,37 +3,123 @@ import { getValue } from '../../src/lib';
 import useMutation from '../useMutationFacade';
 import useCart from '../useCart';
 import gql from 'graphql-tag';
+
+function getAmountPlanned(currency, centAmount) {
+  return { currencyCode: currency, centAmount}
+}
+
+function getPaymentMethodInfo(method) {
+  const methodName = method.includes("ecommpay") ? "ecommpay-integration" : method;
+  return { method: methodName, paymentInterface: methodName}
+}
+
+function getPaymentPageParams(forcePaymentMethodCode) {
+  let data = {
+    redirect_success_url: window.location.origin + "/order-received",
+    redirect_success_mode: "parent_page",
+    redirect_fail_url: window.location.origin + "/order-received",
+    redirect_fail_mode: "parent_page",
+  };
+  const customer = localStorage.getItem("CUSTOMER")
+  if (customer?.customerId) {
+    data.customer_id = customer?.customerId;
+  }
+  if (forcePaymentMethodCode) {
+    data.force_payment_method = forcePaymentMethodCode;
+  }
+  return data;
+}
+
+function getStringParamsFromObject(object) {
+  let s = JSON.stringify(object);
+  s = s.replaceAll('"', String.raw`\"`)
+  return "\"" + s + "\""
+}
+
+// function getRecurringObject() {
+//   return {"register": true,"type": "U"}
+// }
+
+function buildCustomFields(method) {
+  if (!method.includes("ecommpay")) { return {}}
+  const forcePaymentMetodCode = method.replace("ecommpay-", "");
+  return {
+    type: {
+        typeId: "type",
+        key: "ecommpay-integration"
+    },
+    fields: [
+      {
+        name: "initial_request",
+        value: getStringParamsFromObject(getPaymentPageParams(forcePaymentMetodCode))
+      },
+      // You can register recurring payments. 
+      // Contact ecommpay support. 
+      // Note: Commercetools does not provide an interface for managing recurring payments. 
+      // All management is carried out on the ecommpay side
+      // {
+      //   name: "recurring_object",
+      //   value: getStringParamsFromObject(getRecurringObject())
+      // }
+    ]
+  }
+}
+
+function buildCreatePaymentMutation(currency, centAmount, method) {
+  const draft = {
+    amountPlanned: getAmountPlanned(currency, centAmount),
+    paymentMethodInfo: getPaymentMethodInfo(method),
+  };
+  if (method.includes("ecommpay")) {
+    draft.custom = buildCustomFields(method);
+    return {
+      mutation: gql`
+        mutation createMyPayment($draft: MyPaymentDraft!) {
+          createMyPayment(draft: $draft) {
+            paymentId: id
+            version
+            custom {
+              typeRef {
+                id
+              }
+              customFieldsRaw {
+                name
+                value
+              }
+            }
+          }
+        }
+      `,
+      variables: { draft },
+    }
+  }
+
+  return {
+    mutation: gql`
+      mutation createMyPayment($draft: MyPaymentDraft!) {
+        createMyPayment(draft: $draft) {
+          paymentId: id
+          version
+        }
+      }
+    `,
+    variables: { draft },
+  }
+}
+
 export const createPayment = ({
   currency,
   centAmount,
   method,
 }) =>
   apolloClient
-    .mutate({
-      mutation: gql`
-        mutation createMyPayment($draft: MyPaymentDraft!) {
-          createMyPayment(draft: $draft) {
-            paymentId: id
-            version
-          }
-        }
-      `,
-      variables: {
-        draft: {
-          amountPlanned: {
-            currencyCode: currency,
-            centAmount,
-          },
-          paymentMethodInfo: {
-            method,
-          },
-        },
-      },
-    })
-    .then((result) => ({
-      version: result.data.createMyPayment.version,
-      id: result.data.createMyPayment.paymentId,
-    }));
+    .mutate(buildCreatePaymentMutation(currency, centAmount, method))
+    .then((result) => {
+      return {
+        version: result.data.createMyPayment.version,
+        id: result.data.createMyPayment.paymentId,
+      }
+    });
 
 const create = gql`
   mutation createCart($draft: MyCartDraft!) {

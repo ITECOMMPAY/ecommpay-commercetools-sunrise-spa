@@ -1,10 +1,14 @@
-# CommerceTools demo project - Vue SunriseSPA
+# CommerceTools with Ecommpay integration demo project - Vue SunriseSPA
+
+## Description
+
+You can see changes in the commits to find out how to easy implement ecommpay payment methods on the frontend
 
 ## Links
 
-[Demo Sunrise website](https://demo.commercetools.com/)
+[Integration documentation](https://developers.ecommpay.com/en/en_cms_commercetools.html)
 
-[Sunrise frontend](https://docs.commercetools.com/sdk/sunrise)
+[Ecommpay extension repository for commercetools ](https://github.com/ITECOMMPAY/ecommpay-commercetools-integration)
 
 [Sunrise CommerceTools demo data](https://docs.commercetools.com/sdk/sunrise-data)
 

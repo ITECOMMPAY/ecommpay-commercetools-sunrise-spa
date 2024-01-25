@@ -8,6 +8,19 @@ import useCart from 'hooks/useCart';
 import useCartTools from 'hooks/useCartTools';
 
 export default {
+  mounted() {
+        const recaptchaScript = document.createElement("script");
+        recaptchaScript.setAttribute("src", "https://paymentpage.ecommpay.com/shared/merchant.js");
+        recaptchaScript.setAttribute("id","ecommpay_merchant_js-js");
+        document.head.appendChild(recaptchaScript);
+        const recaptchaStyle = document.createElement("link");
+        recaptchaStyle.setAttribute("href","https://paymentpage.ecommpay.com/shared/merchant.css");
+        recaptchaStyle.setAttribute("id","ecommpay_merchant_css-css");
+        recaptchaStyle.setAttribute("rel","stylesheet");
+        recaptchaStyle.setAttribute("media","all");
+        document.head.appendChild(recaptchaScript);
+        document.head.appendChild(recaptchaStyle);
+      },
   components: {
     // CheckoutTopSection,
     OrderOverview,

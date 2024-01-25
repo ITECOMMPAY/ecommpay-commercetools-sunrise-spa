@@ -1,4 +1,4 @@
-from node
+from node:19
 COPY . /tmp/spa
 RUN cd /tmp/spa && yarn install --frozen-lockfile 
 RUN cd /tmp/spa && yarn build
